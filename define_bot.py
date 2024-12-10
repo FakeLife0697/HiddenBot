@@ -1,21 +1,24 @@
+from __future__ import annotations
+
 from typing import Optional
-import os
-from discord import Activity, ActivityType, Guild, Message, Intents
+import logging, os
+from discord import Activity, ActivityType, Guild, Message, Interaction, Intents
 from discord.ext import commands
-import PymongoDiscord as MonDis
+import database
 
 #Setting up intents
 intents = Intents.all();
-
+logger = logging.getLogger("Bot");
 default_prefix = "*"  
 
 class bot_class(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix = default_prefix, help_command = None, intents = intents)
+        super().__init__(
+            command_prefix = default_prefix, 
+            help_command = None, 
+            intents = intents)
         self.synced = False
-        self.dbClient = MonDis.getClient()
-        
-        db = self.dbClient["General"]
+        self.dbClient = database.getClient()  
         
     async def initial_load(self):    
         for file in os.listdir("./HiddenBot-py/cogs"):
@@ -50,21 +53,29 @@ class bot_class(commands.Bot):
             return
         try:
             if self.user.mentioned_in(message):
-                await message.channel.send(f"My prefix: {self.command_prefix}")
+                await message.channel.send(f"Execute slash commands")
         except Exception as e:
             print(e)
             raise e
         await self.process_commands(message)
     
-    async def on_ready(self):
+    async def on_ready(self) -> None:
         await self.wait_until_ready();
         if not self.synced:
             self.synced = True;
-            await self.change_presence(activity = Activity(type = ActivityType.listening, name = "小喋日和"));
+            await self.change_presence(activity = Activity(type = ActivityType.listening, name = "Henchforth/結城さくな(cover)"));
             await self.tree.sync()
         print(f"\nThe Discord Bot has been logged in as {self.user}\n");
         print("Running on {0} {1}\n".format(len(self.guilds), "server" if len(self.guilds) == 1 else "servers"));
+        logger.info(f"\nThe Discord Bot has been logged in as {self.user}\n");
+        logger.info("Running on {0} {1}\n".format(len(self.guilds), "server" if len(self.guilds) == 1 else "servers"));
+        
+       
+    async def success(self, content: str, interaction: Interaction, ephemeral: Optional[bool]):
+        pass
+        
+    async def error(self, content: str, interaction: Interaction, ephemeral: Optional[bool]):
+        pass 
         
     async def close(self):
         await super().close()
-        await self.dbClient.close()
