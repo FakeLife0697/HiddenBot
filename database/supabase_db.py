@@ -5,7 +5,7 @@ from supabase.client import Client, ClientOptions
 resource = open("./HiddenBot-py/resources.json")
 data = json.load(resource)
 url: str = data["SUPABASE_URL"]
-key: str = data["SUPABASE_KEY"]
+key: str = data["SUPABASE_SERVICE_KEY"]
 secret: str = data["SUPABASE_CLIENT_SECRET"]
 
 def getClient() -> None:

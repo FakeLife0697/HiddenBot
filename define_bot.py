@@ -4,7 +4,7 @@ from typing import Optional
 import logging, os
 from discord import Activity, ActivityType, Guild, Message, Interaction, Intents
 from discord.ext import commands
-import database
+from database import supabase_db
 
 #Setting up intents
 intents = Intents.all();
@@ -18,7 +18,7 @@ class bot_class(commands.Bot):
             help_command = None, 
             intents = intents)
         self.synced = False
-        self.dbClient = database.getClient()  
+        self.dbClient = supabase_db.getClient()  
         
     async def initial_load(self):    
         for file in os.listdir("./HiddenBot-py/cogs"):
