@@ -10,11 +10,13 @@ data = json.load(resource)
 token = data["token"]
 
 #Set up logging
-logger = logging.getLogger("discord");
-logger.setLevel(logging.DEBUG);
-handler = logging.FileHandler(filename = "HiddenBot.log", encoding = "utf-8", mode = "w");
-handler.setFormatter(logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s'));
-logger.addHandler(handler);
+logger = logging.getLogger("discord")
+logger.setLevel(logging.DEBUG)
+log_path = "./HiddenBot-py/logs/Hidden.log"
+os.makedirs(os.path.dirname(log_path), exist_ok=True)
+handler = logging.FileHandler(filename = log_path, encoding = "utf-8", mode = "w")
+handler.setFormatter(logging.Formatter('%(asctime)s : %(levelname)s : %(name)s : %(message)s'))
+logger.addHandler(handler)
 
 #Set up bot
 bot = defBot.bot_class()

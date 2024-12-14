@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from typing import Optional
-import logging, os
+import os
 from discord import Activity, ActivityType, Guild, Message, Interaction, Intents
 from discord.ext import commands
 from database import supabase_db
 
 #Setting up intents
-intents = Intents.all();
-logger = logging.getLogger("Bot");
+intents = Intents.all()
 default_prefix = "*"  
 
 class bot_class(commands.Bot):
@@ -67,8 +66,6 @@ class bot_class(commands.Bot):
             await self.tree.sync()
         print(f"\nThe Discord Bot has been logged in as {self.user}\n");
         print("Running on {0} {1}\n".format(len(self.guilds), "server" if len(self.guilds) == 1 else "servers"));
-        logger.info(f"\nThe Discord Bot has been logged in as {self.user}\n");
-        logger.info("Running on {0} {1}\n".format(len(self.guilds), "server" if len(self.guilds) == 1 else "servers"));
         
        
     async def success(self, content: str, interaction: Interaction, ephemeral: Optional[bool]):

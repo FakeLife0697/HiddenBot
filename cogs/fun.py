@@ -39,7 +39,7 @@ class fun(commands.Cog, name = "Fun", description = "Some random commands for fu
         await interaction.response.defer(ephemeral = True)
         await asyncio.sleep(delay = 0)
         channel = channel if channel else interaction.channel
-        await channel.send(f"{message}");
+        await channel.send(f"{message}")
         await interaction.followup.send(content = "Sent.")
     
     @app_commands.command(name = "ping", description = "Ping response")
