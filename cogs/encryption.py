@@ -86,19 +86,19 @@ class encryption(commands.Cog, name = "Encryption", description = ""):
                     backend = default_backend()
                 )
                 byte_message = base64.b64encode(message.encode('utf-16')).decode('utf-8')
-                ciphertext = public_key.encrypt(
+                ciphertext = base64.b64encode(public_key.encrypt(
                     base64.b64decode(byte_message), 
                     padding.OAEP(
                         mgf = padding.MGF1(algorithm = hashes.SHA256()),
                         algorithm = hashes.SHA256(),
                         label = None
                     )
-                )
+                )).decode('utf-8')
                 
                 if user == interaction.guild.get_member(interaction.user.id):
                     embed.add_field(name = "You use your own key?", value = "Just asking", inline = False)
                 
-                embed.add_field(name = "Encrypted message:", value = "||{0}||".format(base64.b64encode(ciphertext).decode('utf-8')), inline = False)
+                embed.add_field(name = "Encrypted message:", value = "||{0}||".format(ciphertext), inline = False)
             else:
                 embed.add_field(name = "Hmmm, that user hasn't generated their RSA key pairs yet!", value = "", inline = False)
             
@@ -129,9 +129,9 @@ class encryption(commands.Cog, name = "Encryption", description = ""):
                         algorithm = hashes.SHA256(),
                         label = None
                     )
-                )
+                ).decode('utf-16')
                 
-                embed.add_field(name = "Decrypted message:", value = "||{0}||".format(decrypted.decode('utf-16'), inline = False))
+                embed.add_field(name = "Decrypted message:", value = "||{0}||".format(decrypted), inline = False)
             else:
                 embed.add_field(name = "Hmmm, you haven't generated your RSA key pairs yet!", value = "", inline = False)
         except Exception as e:
