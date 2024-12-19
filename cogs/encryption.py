@@ -1,11 +1,13 @@
-import asyncio, base64
+import asyncio, base64, random
 from time import gmtime, strftime
 from discord import *
 from discord.ext import commands, tasks
 from enum import Enum
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from cryptography.hazmat.primitives.padding import PKCS7
 
 # Prototype  
     # @app_commands.command(name = "", description = "")
@@ -24,7 +26,10 @@ class encryption(commands.Cog, name = "Encryption", description = ""):
     @commands.Cog.listener()
     async def on_ready(self):
         print("Encryption cog is ready")
-        
+    
+    #----------------------------------------------------------------
+    # Asymmetric encryption
+    # RSA encryption
     @app_commands.command(name = "generate_rsa", description = "Generate RSA key pairs")
     async def slash_generate_rsa_key(self, interaction: Interaction):
         await interaction.response.defer(ephemeral = True)
@@ -76,7 +81,7 @@ class encryption(commands.Cog, name = "Encryption", description = ""):
     async def slash_rsa_encrypt(self, interaction: Interaction, user: Member = None, message: str = None):
         await interaction.response.defer(ephemeral = False)
         await asyncio.sleep(delay = 0)
-        embed = Embed(title = "", color = interaction.guild.owner.top_role.color, timestamp = interaction.created_at)
+        embed = Embed(title = "Encryption", color = interaction.guild.owner.top_role.color, timestamp = interaction.created_at)
         database = self.client.dbClient
         try:
             user = user if user != None else interaction.guild.get_member(interaction.user.id)                
@@ -85,6 +90,8 @@ class encryption(commands.Cog, name = "Encryption", description = ""):
                     database.from_("Discord RSA").select("*").eq("user_id", user.id).execute().data[0]["rsa_public_key"].encode('utf-8'),
                     backend = default_backend()
                 )
+                # Avoid encode/decode bugs
+                # such as: incorrect byte, incorrect length, can't encode from A to B, etc 
                 byte_message = base64.b64encode(message.encode('utf-16')).decode('utf-8')
                 ciphertext = base64.b64encode(public_key.encrypt(
                     base64.b64decode(byte_message), 
@@ -93,7 +100,7 @@ class encryption(commands.Cog, name = "Encryption", description = ""):
                         algorithm = hashes.SHA256(),
                         label = None
                     )
-                )).decode('utf-8')
+                )).decode('utf-16')
                 
                 if user == interaction.guild.get_member(interaction.user.id):
                     embed.add_field(name = "You use your own key?", value = "Just asking", inline = False)
@@ -114,7 +121,7 @@ class encryption(commands.Cog, name = "Encryption", description = ""):
     async def slash_rsa_decrypt(self, interaction: Interaction, ciphertext: str = None):
         await interaction.response.defer(ephemeral = True)
         await asyncio.sleep(delay = 0)
-        embed = Embed(title = "", color = interaction.guild.owner.top_role.color, timestamp = interaction.created_at)
+        embed = Embed(title = "Decryption", color = interaction.guild.owner.top_role.color, timestamp = interaction.created_at)
         database = self.client.dbClient
         try:          
             if database.from_("Discord RSA").select("*").eq("user_id", interaction.user.id).execute().data:
@@ -123,7 +130,8 @@ class encryption(commands.Cog, name = "Encryption", description = ""):
                     password = None
                 )
                 decrypted = private_key.decrypt(
-                    base64.b64decode(ciphertext), 
+                    # Avoid encode/decode bugs
+                    base64.b64decode(base64.b64decode(base64.b64encode(ciphertext.encode('utf-16')).decode('utf-8'))), 
                     padding.OAEP(
                         mgf = padding.MGF1(algorithm = hashes.SHA256()),
                         algorithm = hashes.SHA256(),
@@ -141,6 +149,8 @@ class encryption(commands.Cog, name = "Encryption", description = ""):
       
         embed.set_footer(text = f"Requested by {interaction.user}", icon_url = interaction.user.avatar)
         await interaction.followup.send(embed = embed)
+    
+    
         
 async def setup(client):
     await client.add_cog(encryption(client))

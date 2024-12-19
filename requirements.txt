@@ -1,0 +1,5 @@
+cryptography==44.0.0
+discord.py==2.4.0
+google==3.0.0
+googlesearch_python==1.2.5
+supabase==2.10.0
