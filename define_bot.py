@@ -4,7 +4,7 @@ from typing import Optional
 import os
 from discord import Activity, ActivityType, Guild, Message, Interaction, Intents
 from discord.ext import commands
-from database import supabase_db
+from clients import supabase_db, virustotal
 
 #Setting up intents
 intents = Intents.all()
@@ -17,7 +17,8 @@ class bot_class(commands.Bot):
             help_command = None, 
             intents = intents)
         self.synced = False
-        self.dbClient = supabase_db.getClient()  
+        self.dbClient = supabase_db.getClient()
+        self.vtClient = virustotal.getClient()
         
     async def initial_load(self):    
         for file in os.listdir("./HiddenBot-py/cogs"):
@@ -75,4 +76,5 @@ class bot_class(commands.Bot):
         pass 
         
     async def close(self):
+        await self.vtClient.close_async()
         await super().close()

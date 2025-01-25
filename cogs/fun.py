@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any, List, Mapping, Optional, Tuple
-from discord import Activity, ActivityType, Colour, Embed, Guild, Intents, Interaction, Member, Message, Role, Spotify, TextChannel, Webhook, app_commands
+from discord import *
+# from discord import Colour, Embed, Interaction, Member, TextChannel, app_commands
 from discord.ext import commands, tasks
 from discord.utils import get
 

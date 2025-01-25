@@ -20,8 +20,10 @@ def getClient() -> None:
             "provider": "github",
             "access_token": secret, 
         })
-        print("Database connection established")
+        print("Supabase connection established")
     except Exception as e:
         print(e)
     
     return supaClient
+
+client = getClient()
