@@ -23,19 +23,22 @@ bot = defBot.bot_class()
 
 #Load cogs
 async def load(bot):
-    for file in os.listdir("./HiddenBot-py/cogs"):
-        if file.endswith(".py"):
-            try:
+    try:
+        for file in os.listdir("./HiddenBot-py/cogs"):
+            if file.endswith(".py"):
                 await bot.load_extension(f"cogs.{file[:-3]}")
-            except Exception as e:
-                print(f"Failed to load cog {file[:-3]}: {e}")
-                raise e
+    except Exception as e:
+        print(f"Failed to load cog {file[:-3]}: {e}")
+            
 
 #Log in with the bot token
 async def main():
-    async with bot:
-        await load(bot)
-        await bot.start(token, reconnect = True)
+    try:
+        async with bot:
+            await load(bot)
+            await bot.start(token, reconnect = True)
+    except Exception as e:
+        print(e)
 
 if __name__ == "__main__":
     asyncio.run(main())

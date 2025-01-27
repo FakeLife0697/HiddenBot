@@ -4,8 +4,12 @@ class ConfirmView(ui.View):
     def __init__(self, timeout = 60):
         super().__init__(timeout = timeout)
         self.confirmation: bool = None
+        
+    def disable(self):
+        for child in self.children:
+            child.disabled = True
     
-    @ui.Button(
+    @ui.button(
             style = ButtonStyle.success,
             label = "Confirm",
             custom_id = "confirm"
@@ -15,7 +19,7 @@ class ConfirmView(ui.View):
         self.confirmation = True
         self.stop()
         
-    @ui.Button(
+    @ui.button(
             style = ButtonStyle.danger,
             label = "Cancel",
             custom_id = "cancel"
@@ -27,10 +31,9 @@ class ConfirmView(ui.View):
         
     async def on_timeout(self):
         # Called when the timeout expires
-        for child in self.children:
-            child.disabled = True  # Disable buttons
+        self.disable()
         # Optional: Update the message to indicate timeout
-        await self.message.edit(content = "Message expired. No response received.", view = None)
+        # await self.message.edit(content = "Message expired. No response received.", view = None)
         
     def getConfirmation(self) -> None:
         return self.confirmation

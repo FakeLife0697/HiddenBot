@@ -25,5 +25,3 @@ def getClient() -> None:
         print(e)
     
     return supaClient
-
-client = getClient()
