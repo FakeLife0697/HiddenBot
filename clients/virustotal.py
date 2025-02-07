@@ -7,7 +7,7 @@ key = data["VIRUSTOTAL_KEY"]
 def getClient() -> None:
     vt_client = None
     try:
-        vt_client = vt.Client(key)
+        vt_client = vt.Client(key, timeout = 30)
         print("Virustotal connection established")
     except Exception as e:
         print(e)

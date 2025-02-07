@@ -32,9 +32,9 @@ Update: 0.4.1 - alpha:
 - Removed: changeprefix (unnecessary feature)
 - New Command: help.
 - New Slash Command: help.
-- Aim for the next update: timeout command, other commands for moderation, web crawling or search engine implementation.
 
 Update 0.5.1 - alpha:
 - Revamped codebase (yes my past me fucked up really hard)
+- Added cogs: encryption (RSA, AES)
 
 (More To Come)

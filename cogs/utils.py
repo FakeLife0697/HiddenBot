@@ -1,20 +1,16 @@
 import asyncio, qrcode, re, discord
 from typing import Any, List, Mapping, Optional, Tuple
 # from discord import *
-from discord import Embed, Interaction, app_commands, ui
+from discord import Embed, File, Interaction, app_commands
 from discord.ext import commands
 from discord.utils import get
+from io import BytesIO
+from qrcode.image.styledpil import StyledPilImage
+from qrcode.image.styles.colormasks import RadialGradiantColorMask
+from qrcode.image.styles.moduledrawers.pil import RoundedModuleDrawer
 from components import ConfirmView
 URL_RegEx = "(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?"
-# Prototype  
-    # @app_commands.command(name = "", description = "")
-    # async def slash_(self, interaction: Interaction):
-    #     await interaction.response.defer(ephemeral = True)
-    #     await asyncio.sleep(delay = 0)
-    #     embed = Embed(title = "", color = interaction.guild.owner.top_role.color, timestamp = interaction.created_at)
-      
-    #     embed.set_footer(text = f"Requested by {interaction.user}", icon_url = interaction.user.avatar)
-    #     await interaction.followup.send(embed = embed)
+    
 class utils(commands.Cog, name = "Utility", description = "Utility commands"):
     def __init__(self, client):
         self.client = client
@@ -23,66 +19,59 @@ class utils(commands.Cog, name = "Utility", description = "Utility commands"):
     async def on_ready(self):
         print('Utils cog is ready')
         
-#     @app_commands.command(name = "urlqr", description = "Generate a QR code with a URL")
-#     async def slash_url_qr(self, interaction: Interaction, url: str = None):
-#         await interaction.response.defer(ephemeral = False)
-#         await asyncio.sleep(delay = 0)
-#         embed = Embed(title = "QR Code", color = interaction.guild.owner.top_role.color, timestamp = interaction.created_at)
-#         vtClient = self.vtClient
-#         check_RegEx = lambda x: re.search(URL_RegEx, x)
-#         warning: bool = False
-#         followup_message = None
+    @app_commands.command(name = "urlqr", description = "Generate a QR code with a URL")
+    async def slash_url_qr(self, interaction: Interaction, url: str = None):
+        await interaction.response.defer(ephemeral = False)
+        await asyncio.sleep(delay = 0)
+        embed = Embed(title = "QR Code", color = interaction.guild.owner.top_role.color, timestamp = interaction.created_at)
+        vtClient = self.client.vtClient
+        check_RegEx = lambda x: re.search(URL_RegEx, x)
+        warning: bool = False
         
-#         try:
-#             if check_RegEx(url):
-#                 object = vtClient.scan_url(url)
-#                 result = vtClient.get_object(f'/analyses/{object.id}')
-#                 res_detail = result.to_dict()["attributes"]["stats"]
-                
-#                 if res_detail["malicious"] > 0 or res_detail["suspicious"] > 0:
-#                     embed.add_field(name = "The URL you provide is marked dangerous by multiple VirusTotal's databases.", value = "Therefore I reject your request.", inline = False)
-#                     embed.add_field(name = "Malicious: ", value = res_detail["malicious"], inline = False)
-#                     embed.add_field(name = "Suspicious: ", value = res_detail["suspicious"], inline = False)
-#                     await interaction.followup.send(embed = embed)
-#                     return
-                
-#                 if res_detail["undetected"] > 0 or res_detail["timeout"] > 0:
-#                     embed.add_field(name = "The URL you provide is marked dangerous by VirusTotal.", value = "Therefore I reject your request.", inline = False)
-#                     embed.set_footer(text = f"Requested by {interaction.user}", icon_url = interaction.user.avatar)
-#                     warning = True
-#                     view = ConfirmView(timeout = 60)
-#                     followup_message = await interaction.followup.send(embed = embed, view = view, wait = True)
+        try:
+            if check_RegEx(url) is not None:
+                obj = await vtClient.scan_url_async(url)
+                result = await vtClient.get_json_async(f'/analyses/{obj.id}')
+                res_detail = result["data"]["attributes"]["stats"]
+                await vtClient.delete_async(f'/analyses/{obj.id}')
+                print(res_detail)
+              
+                if res_detail["malicious"] > 0 or res_detail["suspicious"] > 0:
+                    embed.add_field(name = "The URL you provide is marked dangerous by multiple VirusTotal's databases.", value = "Therefore I reject your request.", inline = False)
+                    embed.add_field(name = "Malicious: ", value = res_detail["malicious"], inline = False)
+                    embed.add_field(name = "Suspicious: ", value = res_detail["suspicious"], inline = False)
+                    await interaction.followup.send(embed = embed)
+                    return
 
-#                     await view.wait()
+                qr = qrcode.QRCode(
+                    version = 1,
+                    error_correction = qrcode.constants.ERROR_CORRECT_H,
+                    box_size = 10,
+                    border = 4,
+                )
+                qr.add_data(url)
+                image = qr.make_image(image_factory = StyledPilImage, color_mask = RadialGradiantColorMask(), module_drawer= RoundedModuleDrawer())
+                with BytesIO() as image_binary:
+                    image.save(image_binary, format = "PNG")
+                    image_binary.seek(0)
+                    file = File(image_binary, filename = "image.png")
                     
-#                     if view.getConfirmation() is None or view.getConfirmation() is False:
-#                         view.disable()
-#                         embed2 = Embed(title = "QR Code", color = interaction.guild.owner.top_role.color, timestamp = interaction.created_at)
-#                         # embed2.add_field()
-#                         embed2.set_footer(text = f"Requested by {interaction.user}", icon_url = interaction.user.avatar)
-#                         await followup_message.edit(embed = embed2, view = None)
-#                         return
-                    
-#                 # qr = qrcode.QRCode(
-#                 #     version = 1,
-#                 #     error_correction = qrcode.constants.ERROR_CORRECT_L,
-#                 #     box_size = 10,
-#                 #     border = 4,
-#                 # )
-#                 # qr.add_data(url)
-#                 # qr.make(fit = True)
-
-#         except Exception as e:
-#             embed.add_field(name = "Process failed!", value = "Try again.", inline = False)
-#             print("Process failed")
-#             print(e)
-            
-#         embed.set_footer(text = f"Requested by {interaction.user}", icon_url = interaction.user.avatar)
-        
-#         if warning:
-#             await followup_message.edit(embed = embed, view = None)
-#         else:
-#             await interaction.followup.send(embed = embed)
+                embed.set_image(url = "attachment://image.png")
+            else:
+                embed.add_field(name = "The URL you provide is invalid.", value = "Therefore I reject your request.", inline = False)
+                
+        except Exception as e:
+            embed.add_field(name = "Process failed!", value = "Try again.", inline = False)
+            print("Process failed")
+            print(e)
+            raise e
+          
+        embed.set_footer(text = f"Requested by {interaction.user}", icon_url = interaction.user.avatar)
+      
+        # if warning:
+        #     await interaction.followup.edit_message(embed = embed, view = None, file = file)
+        # else:
+        await interaction.followup.send(embed = embed, file = file)
 
     
 async def setup(client):
