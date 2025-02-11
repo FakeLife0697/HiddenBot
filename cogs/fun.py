@@ -1,5 +1,8 @@
-from discord import Colour, Embed, Guild, Interaction, Member, Message, Spotify, TextChannel
+import asyncio
+from typing import Any, List, Mapping, Optional, Tuple
+from discord import Colour, Embed, Interaction, Member, TextChannel, app_commands
 from discord.ext import commands, tasks
+from discord.utils import get
 
 class fun(commands.Cog, name = "Fun", description = "Some random commands for fun"):
     def __init__(self, client):
@@ -9,31 +12,35 @@ class fun(commands.Cog, name = "Fun", description = "Some random commands for fu
     async def on_ready(self):
         print('Fun cog is ready')
         
-    @commands.command(name = "avatar", description = "Check someone's beauty", hidden = False)
-    async def avatar(self, ctx, user: Member = None):
-        user = user if user else ctx.author
+    @app_commands.command(name = "avatar", description = "Check someone's beauty")
+    async def slash_avatar(self, interaction: Interaction, user: Member = None):
+        await interaction.response.defer(ephemeral = False)
+        await asyncio.sleep(delay = 0)
+        user = user if user else interaction.user
         avatarURL = user.avatar
-        embed = Embed(colour = user.top_role.color, timestamp = ctx.message.created_at)
+        embed = Embed(title = "Avatar", colour = user.top_role.color, timestamp = interaction.created_at)
         embed.set_author(name = f"{user}'s avatar: ")
-        embed.set_footer(text = f"Requested by {ctx.author}", icon_url = ctx.author.avatar)
+        embed.set_footer(text = f"Requested by {interaction.user}", icon_url = interaction.user.avatar)
         embed.set_image(url = avatarURL)
-        await ctx.send(embed = embed)
+        await interaction.followup.send(embed = embed)
     
-    '''
-    @commands.command()
-    async def imitate(self, ctx, channel: TextChannel = None, *args):
-        channel = channel if channel else ctx.channel
-        await ctx.channel.purge(limit = 1);
-        await channel.send("{}".format(" ".join(args)));
-    '''
-        
-    @commands.command(name = "ping", description = "Ping response", hidden = False)
-    async def ping(self, ctx):
+    @app_commands.command(name = "imitate", description = "Imitate your message")
+    async def slash_imitate(self, interaction: Interaction, channel: TextChannel = None, message: str = None):
+        await interaction.response.defer(ephemeral = True)
+        await asyncio.sleep(delay = 0)
+        channel = channel if channel else interaction.channel
+        await channel.send(f"{message}")
+        await interaction.followup.send(content = "Sent.")
+    
+    @app_commands.command(name = "ping", description = "Ping response")
+    async def slash_ping(self, interaction: Interaction):
+        await interaction.response.defer(ephemeral = False)
+        await asyncio.sleep(delay = 0)
         ping_ms = round(self.client.latency * 1000)
-        embed = Embed(title = "Pong!", color = Colour.random())
-        embed.set_footer(text = f"Requested by {ctx.author}", icon_url = ctx.author.avatar);
+        embed = Embed(title = "Pong!", color = Colour.random(), timestamp = interaction.created_at)
+        embed.set_footer(text = f"Requested by {interaction.user}", icon_url = interaction.user.avatar)
         embed.add_field(name = "Latency: ", value = "{} ms".format(ping_ms))
-        await ctx.send(embed = embed)
+        await interaction.followup.send(embed = embed)
         
 async def setup(client):
     await client.add_cog(fun(client))
