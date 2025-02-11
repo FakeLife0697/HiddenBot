@@ -35,6 +35,9 @@ Update: 0.4.1 - alpha:
 
 Update 0.5.1 - alpha:
 - Revamped codebase (yes my past me fucked up really hard)
-- Added cogs: encryption (RSA, AES)
+- Added cogs: encryption (RSA, AES key generation, encrypt/decrypt functions), prototype (nothing special)
+- Added methods: urlqr (utils cog)
+- Removed: mongoDB
+- Added: VirusTotal and Supabase
 
 (More To Come)

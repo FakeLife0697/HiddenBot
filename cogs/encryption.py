@@ -1,6 +1,6 @@
 import asyncio, base64, random
 from time import gmtime, strftime
-from discord import *
+from discord import Embed, Interaction, Member, app_commands
 from discord.ext import commands
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes

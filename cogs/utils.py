@@ -1,6 +1,5 @@
 import asyncio, qrcode, re, discord
 from typing import Any, List, Mapping, Optional, Tuple
-# from discord import *
 from discord import Embed, File, Interaction, app_commands
 from discord.ext import commands
 from discord.utils import get
@@ -8,7 +7,7 @@ from io import BytesIO
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.colormasks import RadialGradiantColorMask
 from qrcode.image.styles.moduledrawers.pil import RoundedModuleDrawer
-from components import ConfirmView
+
 URL_RegEx = "(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?\/[a-zA-Z0-9]{2,}|((https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z]{2,}(\.[a-zA-Z]{2,})(\.[a-zA-Z]{2,})?)|(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?"
     
 class utils(commands.Cog, name = "Utility", description = "Utility commands"):
@@ -43,6 +42,7 @@ class utils(commands.Cog, name = "Utility", description = "Utility commands"):
                     await interaction.followup.send(embed = embed)
                     return
 
+                # Generate QR bitmap
                 qr = qrcode.QRCode(
                     version = 1,
                     error_correction = qrcode.constants.ERROR_CORRECT_H,
@@ -50,6 +50,8 @@ class utils(commands.Cog, name = "Utility", description = "Utility commands"):
                     border = 4,
                 )
                 qr.add_data(url)
+                
+                # Generate QR image
                 image = qr.make_image(image_factory = StyledPilImage, color_mask = RadialGradiantColorMask(), module_drawer= RoundedModuleDrawer())
                 with BytesIO() as image_binary:
                     image.save(image_binary, format = "PNG")
@@ -67,10 +69,6 @@ class utils(commands.Cog, name = "Utility", description = "Utility commands"):
             raise e
           
         embed.set_footer(text = f"Requested by {interaction.user}", icon_url = interaction.user.avatar)
-      
-        # if warning:
-        #     await interaction.followup.edit_message(embed = embed, view = None, file = file)
-        # else:
         await interaction.followup.send(embed = embed, file = file)
 
     

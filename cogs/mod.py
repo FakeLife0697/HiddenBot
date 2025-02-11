@@ -1,7 +1,7 @@
 import asyncio, discord
 from typing import Any, List, Mapping, Optional, Tuple
-from discord import *
-# from discord import Interaction, Member, app_commands
+# from discord import *
+from discord import Interaction, Member, app_commands
 from discord.ext import commands
 from discord.utils import get
 

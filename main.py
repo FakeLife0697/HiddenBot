@@ -1,5 +1,5 @@
-#Hidden Bot alpha ver 0.4.2 (Python)
-#1 year into the work now
+# Hidden Bot alpha ver 0.5.1 (Python)
+# 2 years into the work now
 from __future__ import annotations
 import discord, logging, os, asyncio, json
 import define_bot as defBot

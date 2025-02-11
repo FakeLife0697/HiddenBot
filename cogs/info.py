@@ -1,7 +1,6 @@
 import asyncio, discord, googlesearch
 from typing import Any, List, Mapping, Optional, Tuple
-from discord import *
-# from discord import Embed, Interaction, Member, app_commands
+from discord import Embed, Interaction, Member, app_commands
 from discord.ext import commands
 from discord.utils import get
 
